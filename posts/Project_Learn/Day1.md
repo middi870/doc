@@ -6,10 +6,6 @@ tags: ["rust", "python", "practical_learning", "1","day1"]
 description: "A Learning Day with ChatGPT Project_Learn/Day-1."
 ---
 
-
-
-
-
 # Project Dump: ./01_day/
 
 ## Project Structure

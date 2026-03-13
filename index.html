@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog</title>
+  <meta name="description" content="A fully static Markdown blog" />
+  <!-- fevicon -->
+  <link rel="icon" type="image/jpeg" sizes="32x32" href="favicon.jpeg">
+  <link rel="shortcut icon" href="favicon.jpeg">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+    rel="stylesheet" />
+
+  <!-- marked.js for Markdown parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+
+  <!-- highlight.js for syntax highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <style>
+    /* ── Design Tokens ─────────────────────────────────────── */
+    :root {
+      --bg-base: #0d0d0d;
+      --bg-sidebar: #111111;
+      --bg-surface: #161616;
+      --bg-hover: #1e1e1e;
+      --bg-active: #212121;
+      --bg-code: #0a0a0a;
+
+      --border: #2a2a2a;
+      --border-subtle: #1f1f1f;
+
+      --text-primary: #ececec;
+      --text-secondary: #8a8a8a;
+      --text-muted: #555555;
+      --text-code: #e0c97f;
+
+      --accent: #19c37d;
+      --accent-dim: rgba(25, 195, 125, 0.12);
+      --accent-glow: rgba(25, 195, 125, 0.06);
+
+      --sidebar-w: 260px;
+      --content-max: 720px;
+      --header-h: 52px;
+
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+
+      --font-sans: 'DM Sans', system-ui, sans-serif;
+      --font-serif: 'Lora', Georgia, serif;
+      --font-mono: 'Geist Mono', 'Fira Code', monospace;
+
+      --transition: 0.18s ease;
+    }
+
+    /* ── Reset & Base ─────────────────────────────────────── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      height: 100%;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      height: 100%;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+    }
+
+    /* ── Layout ───────────────────────────────────────────── */
+    #app {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ──────────────────────────────────────────── */
+    #sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      height: 100%;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: transform var(--transition), opacity var(--transition);
+      z-index: 50;
+    }
+
+    .sidebar-header {
+      padding: 18px 16px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .logo-mark {
+      width: 28px;
+      height: 28px;
+      background: var(--accent);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .logo-mark svg {
+      width: 15px;
+      height: 15px;
+      fill: #000;
+    }
+
+    .logo-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+    }
+
+    .logo-text span {
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+
+    /* ── Search ───────────────────────────────────────────── */
+    .search-wrap {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+
+    .search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 9px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    #search-input {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 7px 10px 7px 30px;
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      outline: none;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+
+    #search-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    #search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+
+    /* ── Post List ────────────────────────────────────────── */
+    .sidebar-section-label {
+      padding: 12px 16px 5px;
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    #post-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 4px 20px;
+    }
+
+    #post-list::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    #post-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    #post-list::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+
+    /* ── VS Code–style recursive tree ───────────────────── */
+
+    /* Every row (folder or file) is a flex row with depth-based padding-left */
+    .tree-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding-top: 5px;
+      padding-bottom: 5px;
+      padding-right: 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      user-select: none;
+      transition: background var(--transition);
+      border: 1px solid transparent;
+      margin-bottom: 1px;
+      text-decoration: none;
+      min-width: 0;
+    }
+
+    .tree-row:hover {
+      background: var(--bg-hover);
+    }
+
+    /* Folder row */
+    .tree-folder-row {
+      color: var(--text-secondary);
+    }
+
+    /* Chevron — rotates when open */
+    .tree-chevron {
+      flex-shrink: 0;
+      color: var(--text-muted);
+      transition: transform 0.18s ease;
+      margin-right: 1px;
+    }
+
+    .tree-folder.open>.tree-folder-row .tree-chevron {
+      transform: rotate(90deg);
+    }
+
+    /* Icons */
+    .tree-icon {
+      flex-shrink: 0;
+    }
+
+    .tree-folder-icon {
+      color: var(--text-muted);
+      transition: color var(--transition);
+    }
+
+    .tree-folder.open>.tree-folder-row .tree-folder-icon {
+      color: #e8c07a;
+    }
+
+    .tree-file-icon {
+      color: var(--text-muted);
+    }
+
+    /* Label text */
+    .tree-label {
+      font-size: 13px;
+      font-weight: 400;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .tree-folder-row .tree-label {
+      color: var(--text-secondary);
+      font-size: 12.5px;
+      font-weight: 500;
+      transition: color var(--transition);
+    }
+
+    .tree-folder.open>.tree-folder-row .tree-label {
+      color: var(--text-primary);
+    }
+
+    .tree-file-row .tree-label {
+      color: var(--text-primary);
+    }
+
+    .tree-file-row.active .tree-label {
+      color: var(--accent);
+    }
+
+    /* Active file highlight */
+    .tree-file-row.active {
+      background: var(--bg-active);
+      border-color: var(--border);
+    }
+
+    /* Collapsible children */
+    .tree-children {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 0.22s ease;
+    }
+
+    .tree-folder.open>.tree-children {
+      max-height: 9999px;
+      transition: max-height 0.4s ease;
+    }
+
+    /* Indent guide line — drawn on the children container */
+    .tree-children-inner {
+      position: relative;
+    }
+
+    .tree-children-inner::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 4px;
+      left: var(--guide-left, 16px);
+      width: 1px;
+      background: var(--border-subtle);
+    }
+
+    .tree-folder.open>.tree-children>.tree-children-inner::before {
+      background: var(--border);
+    }
+
+    /* File meta (date / tags) shown below title */
+    .tree-file-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 1px;
+      padding-left: 22px;
+      /* align under label, past icon */
+    }
+
+    .post-item {
+      display: block;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background var(--transition);
+      border: 1px solid transparent;
+      margin-bottom: 1px;
+    }
+
+    .post-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .post-item.active {
+      background: var(--bg-active);
+      border-color: var(--border);
+    }
+
+    .post-item-title {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-primary);
+      line-height: 1.4;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .post-item.active .post-item-title {
+      color: var(--accent);
+    }
+
+    .post-item-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 3px;
+    }
+
+    .post-item-date {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .post-tag {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 20px;
+      background: var(--bg-hover);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .post-item.active .post-tag {
+      background: var(--accent-dim);
+      border-color: rgba(25, 195, 125, 0.25);
+      color: var(--accent);
+    }
+
+    /* ── Tag Filter ───────────────────────────────────────── */
+    .tag-filter {
+      padding: 8px 12px 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      flex-shrink: 0;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .tag-chip {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: var(--font-sans);
+      transition: all var(--transition);
+    }
+
+    .tag-chip:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .tag-chip.active {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── No Results ───────────────────────────────────────── */
+    .no-results {
+      padding: 20px 16px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    /* ── Main Area ────────────────────────────────────────── */
+    #main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    /* ── Top bar (mobile) ─────────────────────────────────── */
+    #topbar {
+      height: var(--header-h);
+      border-bottom: 1px solid var(--border-subtle);
+      display: none;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+      flex-shrink: 0;
+      background: var(--bg-base);
+    }
+
+    #menu-btn {
+      width: 32px;
+      height: 32px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    #topbar-title {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── Content ──────────────────────────────────────────── */
+    #content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 24px 80px;
+      scroll-behavior: smooth;
+    }
+
+    #content::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    #content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    #content::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+
+    .content-inner {
+      max-width: var(--content-max);
+      margin: 0 auto;
+      padding-top: 52px;
+    }
+
+    /* ── Welcome / Home Screen ────────────────────────────── */
+    #home-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      flex-direction: column;
+      gap: 16px;
+      text-align: center;
+      padding: 40px 24px;
+    }
+
+    .home-icon {
+      width: 56px;
+      height: 56px;
+      background: var(--accent-dim);
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(25, 195, 125, 0.2);
+      margin-bottom: 8px;
+    }
+
+    .home-icon svg {
+      width: 26px;
+      height: 26px;
+      color: var(--accent);
+    }
+
+    #home-screen h2 {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      font-weight: 500;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    #home-screen p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      max-width: 360px;
+      line-height: 1.7;
+    }
+
+    /* ── Article typography ───────────────────────────────── */
+    #article {
+      display: none;
+    }
+
+    .article-header {
+      margin-bottom: 36px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .article-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .article-tag {
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 20px;
+      background: var(--accent-dim);
+      color: var(--accent);
+      border: 1px solid rgba(25, 195, 125, 0.2);
+      font-weight: 500;
+      letter-spacing: 0.03em;
+    }
+
+    .article-header h1 {
+      font-family: var(--font-serif);
+      font-size: 32px;
+      font-weight: 600;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+
+    .article-byline {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .article-date {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .article-author {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .article-reading-time {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    /* ── Prose ────────────────────────────────────────────── */
+    .prose {
+      font-family: var(--font-serif);
+      font-size: 16.5px;
+      line-height: 1.85;
+      color: #d4d4d4;
+    }
+
+    .prose h1,
+    .prose h2,
+    .prose h3,
+    .prose h4,
+    .prose h5,
+    .prose h6 {
+      font-family: var(--font-sans);
+      color: var(--text-primary);
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      margin: 2em 0 0.6em;
+      line-height: 1.3;
+    }
+
+    .prose h1 {
+      font-size: 26px;
+    }
+
+    .prose h2 {
+      font-size: 21px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 8px;
+    }
+
+    .prose h3 {
+      font-size: 17px;
+    }
+
+    .prose h4 {
+      font-size: 15px;
+    }
+
+    .prose p {
+      margin: 0 0 1.4em;
+    }
+
+    .prose strong {
+      color: var(--text-primary);
+      font-weight: 600;
+      font-family: var(--font-serif);
+    }
+
+    .prose em {
+      font-style: italic;
+      color: #c8c8c8;
+    }
+
+    .prose a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(25, 195, 125, 0.3);
+      transition: border-color var(--transition);
+    }
+
+    .prose a:hover {
+      border-color: var(--accent);
+    }
+
+    .prose ul,
+    .prose ol {
+      margin: 0 0 1.4em 1.4em;
+    }
+
+    .prose li {
+      margin-bottom: 0.4em;
+    }
+
+    .prose blockquote {
+      margin: 1.6em 0;
+      padding: 14px 18px;
+      border-left: 3px solid var(--accent);
+      background: var(--accent-glow);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+
+    .prose hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2.5em 0;
+    }
+
+    .prose img {
+      max-width: 100%;
+      border-radius: var(--radius-md);
+      margin: 1.6em 0;
+      border: 1px solid var(--border);
+    }
+
+    .prose table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.6em 0;
+      font-size: 14px;
+      font-family: var(--font-sans);
+    }
+
+    .prose th {
+      text-align: left;
+      padding: 10px 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      font-weight: 500;
+      color: var(--text-secondary);
+      font-size: 12px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .prose td {
+      padding: 10px 14px;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+    }
+
+    .prose tr:nth-child(even) td {
+      background: var(--bg-surface);
+    }
+
+    /* ── Inline code ─────────────────────────────────────── */
+    .prose code:not(pre code) {
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      padding: 2px 6px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-code);
+    }
+
+    /* ── Code blocks ──────────────────────────────────────── */
+    .code-block-wrapper {
+      position: relative;
+      margin: 1.6em 0;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .code-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 14px;
+      background: #0f0f0f;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .code-lang {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+
+    .copy-btn {
+      font-size: 11.5px;
+      font-family: var(--font-sans);
+      padding: 3px 9px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-hover);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+
+    .copy-btn:hover {
+      color: var(--text-primary);
+      border-color: var(--text-muted);
+    }
+
+    .copy-btn.copied {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    .code-block-wrapper pre {
+      margin: 0 !important;
+      border-radius: 0 !important;
+      background: var(--bg-code) !important;
+      padding: 18px 20px !important;
+      overflow-x: auto;
+      font-size: 13.5px !important;
+      line-height: 1.7 !important;
+    }
+
+    .code-block-wrapper pre code {
+      font-family: var(--font-mono) !important;
+      background: transparent !important;
+      padding: 0 !important;
+      border: none !important;
+      border-radius: 0 !important;
+      font-size: inherit !important;
+    }
+
+    /* ── Overlay (mobile sidebar) ─────────────────────────── */
+    #overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 40;
+      backdrop-filter: blur(2px);
+    }
+
+    /* ── Loading / Error ──────────────────────────────────── */
+    .state-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      flex-direction: column;
+      gap: 12px;
+      text-align: center;
+    }
+
+    .spinner {
+      width: 22px;
+      height: 22px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .state-screen p {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* ── Article fade-in ──────────────────────────────────── */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .article-fade {
+      animation: fadeUp 0.3s ease forwards;
+    }
+
+    /* ── Mobile ───────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      #topbar {
+        display: flex;
+      }
+
+      #sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        transform: translateX(-100%);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+      }
+
+      #sidebar.open {
+        transform: translateX(0);
+      }
+
+      #overlay.show {
+        display: block;
+      }
+
+      #content {
+        padding: 0 16px 80px;
+      }
+
+      .content-inner {
+        padding-top: 36px;
+      }
+
+      .article-header h1 {
+        font-size: 26px;
+      }
+
+      .prose {
+        font-size: 15.5px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .article-header h1 {
+        font-size: 22px;
+      }
+    }
+
+    /* ── Smooth scrollbar ─────────────────────────────────── */
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="app">
+
+    <!-- ── Sidebar ─────────────────────────────────── -->
+    <aside id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo" onclick="navigateHome()">
+          <div class="logo-mark">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-1 4H6v2h12V7zm0 4H6v2h12v-2zm-6 4H6v2h6v-2z" />
+            </svg>
+          </div>
+          <span class="logo-text">dev<span>/notes</span></span>
+        </div>
+      </div>
+
+      <div class="search-wrap">
+        <div class="search-box">
+          <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+          <input id="search-input" type="text" placeholder="Search posts…" autocomplete="off" />
+        </div>
+      </div>
+
+      <div id="tag-filter" class="tag-filter" style="display:none"></div>
+
+      <div class="sidebar-section-label">Posts</div>
+
+      <nav id="post-list"></nav>
+    </aside>
+
+    <!-- ── Overlay ─────────────────────────────────── -->
+    <div id="overlay"></div>
+
+    <!-- ── Main ───────────────────────────────────── -->
+    <main id="main">
+
+      <!-- Mobile top bar -->
+      <div id="topbar">
+        <button id="menu-btn" aria-label="Open menu">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <line x1="3" y1="12" x2="21" y2="12" />
+            <line x1="3" y1="18" x2="21" y2="18" />
+          </svg>
+        </button>
+        <span id="topbar-title">dev/notes</span>
+      </div>
+
+      <div id="content">
+        <!-- Home screen -->
+        <div id="home-screen">
+          <div class="home-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+            </svg>
+          </div>
+          <h2>Select a post to read</h2>
+          <p>Browse posts from the sidebar, or use search and tag filters to find what you're looking for.</p>
+        </div>
+
+        <!-- Loading screen -->
+        <div id="loading-screen" class="state-screen" style="display:none">
+          <div class="spinner"></div>
+          <p>Loading post…</p>
+        </div>
+
+        <!-- Error screen -->
+        <div id="error-screen" class="state-screen" style="display:none">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <circle cx="12" cy="16" r="1" fill="#555" stroke="none" />
+          </svg>
+          <p id="error-msg">Post not found.</p>
+        </div>
+
+        <!-- Article -->
+        <div class="content-inner">
+          <article id="article">
+            <header class="article-header">
+              <div id="article-tags" class="article-tags"></div>
+              <h1 id="article-title"></h1>
+              <div class="article-byline">
+                <span id="article-date" class="article-date"></span>
+                <span id="article-author" class="article-author"></span>
+                <span id="article-reading-time" class="article-reading-time"></span>
+              </div>
+            </header>
+            <div id="article-body" class="prose"></div>
+          </article>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <script>
+    // ─────────────────────────────────────────────────
+    //  Config
+    // ─────────────────────────────────────────────────
+    const CONFIG = {
+      postsIndex: './posts.json',
+      postsDir: './posts/',
+      siteName: 'dev/notes',
+    };
+
+    // ─────────────────────────────────────────────────
+    //  State
+    // ─────────────────────────────────────────────────
+    let allPosts = [];
+    let activeSlug = null;
+    let activeTag = null;
+    let searchQuery = '';
+
+    // ─────────────────────────────────────────────────
+    //  DOM refs
+    // ─────────────────────────────────────────────────
+    const $ = id => document.getElementById(id);
+    const sidebar = $('sidebar');
+    const overlay = $('overlay');
+    const postList = $('post-list');
+    const tagFilter = $('tag-filter');
+    const searchInput = $('search-input');
+    const homeScreen = $('home-screen');
+    const loadingScreen = $('loading-screen');
+    const errorScreen = $('error-screen');
+    const errorMsg = $('error-msg');
+    const article = $('article');
+    const articleTitle = $('article-title');
+    const articleDate = $('article-date');
+    const articleAuthor = $('article-author');
+    const articleReadingTime = $('article-reading-time');
+    const articleTags = $('article-tags');
+    const articleBody = $('article-body');
+    const topbarTitle = $('topbar-title');
+
+    // ─────────────────────────────────────────────────
+    //  Marked.js setup
+    // ─────────────────────────────────────────────────
+    const renderer = new marked.Renderer();
+
+    // Custom code block renderer with copy button and header
+    renderer.code = function (code, lang) {
+      const language = lang || 'plaintext';
+      const id = 'cb-' + Math.random().toString(36).slice(2, 8);
+      let highlighted;
+      try {
+        highlighted = hljs.highlight(code, {language, ignoreIllegals: true}).value;
+      } catch {
+        highlighted = hljs.highlightAuto(code).value;
+      }
+      return `
+    <div class="code-block-wrapper">
+      <div class="code-block-header">
+        <span class="code-lang">${language}</span>
+        <button class="copy-btn" data-target="${id}" onclick="copyCode(this)">Copy</button>
+      </div>
+      <pre><code id="${id}" class="hljs language-${language}">${highlighted}</code></pre>
+    </div>`;
+    };
+
+    marked.setOptions({
+      renderer,
+      gfm: true,
+      breaks: false,
+      mangle: false,
+      headerIds: true,
+    });
+
+    // ─────────────────────────────────────────────────
+    //  Frontmatter parser
+    // ─────────────────────────────────────────────────
+    function parseFrontmatter(raw) {
+      const match = raw.match(/^---\s*\n([\s\S]*?)\n---\s*\n?([\s\S]*)$/);
+      if (!match) return {meta: {}, body: raw};
+
+      const meta = {};
+      match[1].split('\n').forEach(line => {
+        const [key, ...rest] = line.split(':');
+        if (!key || !rest.length) return;
+        let val = rest.join(':').trim();
+        // strip surrounding quotes
+        val = val.replace(/^["']|["']$/g, '');
+        // parse arrays: [a, b, c]
+        if (val.startsWith('[') && val.endsWith(']')) {
+          meta[key.trim()] = val.slice(1, -1).split(',').map(v => v.trim().replace(/^["']|["']$/g, '')).filter(Boolean);
+        } else {
+          meta[key.trim()] = val;
+        }
+      });
+
+      return {meta, body: match[2]};
+    }
+
+    // ─────────────────────────────────────────────────
+    //  Utilities
+    // ─────────────────────────────────────────────────
+    function formatDate(str) {
+      if (!str) return '';
+      const d = new Date(str);
+      if (isNaN(d)) return str;
+      return d.toLocaleDateString('en-US', {year: 'numeric', month: 'short', day: 'numeric'});
+    }
+
+    function estimateReadingTime(text) {
+      const words = text.trim().split(/\s+/).length;
+      const mins = Math.ceil(words / 220);
+      return `${mins} min read`;
+    }
+
+    function slugify(str) {
+      return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    }
+
+    // ─────────────────────────────────────────────────
+    //  Load posts index
+    // ─────────────────────────────────────────────────
+    async function loadPostsIndex() {
+      try {
+        const res = await fetch(CONFIG.postsIndex);
+        if (!res.ok) throw new Error('posts.json not found');
+        const data = await res.json();
+        allPosts = data.posts || data; // support both {posts:[]} and []
+        // Sort by date descending
+        allPosts.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+        buildTagFilter();
+        renderPostList(allPosts);
+      } catch (e) {
+        const isFileProtocol = location.protocol === 'file:';
+        postList.innerHTML = `<div class="no-results">${isFileProtocol
+            ? 'Open via a local server, not file://.<br><small>Run: <code style="font-family:monospace">python3 -m http.server 8080</code></small>'
+            : 'Could not load posts.json'
+          }</div>`;
+        console.error(e);
+      }
+    }
+
+    // ─────────────────────────────────────────────────
+    //  Tag filter
+    // ─────────────────────────────────────────────────
+    function buildTagFilter() {
+      const allTags = new Set();
+      allPosts.forEach(p => (p.tags || []).forEach(t => allTags.add(t)));
+      if (!allTags.size) return;
+
+      tagFilter.style.display = 'flex';
+      tagFilter.innerHTML = `
+    <button class="tag-chip active" data-tag="">All</button>
+    ${[...allTags].map(t => `<button class="tag-chip" data-tag="${t}">${t}</button>`).join('')}
+  `;
+
+      tagFilter.querySelectorAll('.tag-chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeTag = btn.dataset.tag || null;
+          tagFilter.querySelectorAll('.tag-chip').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          applyFilters();
+        });
+      });
+    }
+
+    // ─────────────────────────────────────────────────
+    //  Folder open/closed state  { "full/path": bool }
+    // ─────────────────────────────────────────────────
+    const folderState = {};
+
+    // All ancestor paths of a slug:  "A/B/C/file" → ["A", "A/B", "A/B/C"]
+    function ancestorPaths(slug) {
+      const parts = slug.split('/');
+      const result = [];
+      for (let i = 1; i < parts.length; i++) result.push(parts.slice(0, i).join('/'));
+      return result;
+    }
+
+    function isFolderOpen(path) {
+      if (path in folderState) return folderState[path];
+      if (activeSlug) return ancestorPaths(activeSlug).includes(path);
+      return false;
+    }
+
+    function openAncestors(slug) {
+      ancestorPaths(slug).forEach(p => {folderState[p] = true;});
+    }
+
+    // ─────────────────────────────────────────────────
+    //  Build recursive tree from flat post list
+    //  Node: { name, path, folders: Map, posts: [] }
+    // ─────────────────────────────────────────────────
+    function buildTree(posts) {
+      const root = {name: '', path: '', folders: new Map(), posts: []};
+      posts.forEach(post => {
+        const parts = post.slug.split('/');
+        let node = root;
+        for (let i = 0; i < parts.length - 1; i++) {
+          const seg = parts[i];
+          const fullPath = parts.slice(0, i + 1).join('/');
+          if (!node.folders.has(seg)) {
+            node.folders.set(seg, {name: seg, path: fullPath, folders: new Map(), posts: []});
+          }
+          node = node.folders.get(seg);
+        }
+        node.posts.push(post);
+      });
+      return root;
+    }
+
+    // ─────────────────────────────────────────────────
+    //  SVG icons
+    // ─────────────────────────────────────────────────
+    const SVG_CHEVRON = `<svg class="tree-chevron" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>`;
+    const SVG_FOLDER = `<svg class="tree-icon tree-folder-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>`;
+    const SVG_FILE = `<svg class="tree-icon tree-file-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`;
+
+    // ─────────────────────────────────────────────────
+    //  Recursive tree renderer
+    //  depth 0 = top level; each level adds INDENT_PX
+    // ─────────────────────────────────────────────────
+    const INDENT_PX = 14;
+    const BASE_PX = 10;
+
+    function renderTreeNode(node, depth) {
+      let html = '';
+      const indent = BASE_PX + depth * INDENT_PX;
+
+      // Folders first (alphabetical)
+      [...node.folders.values()]
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .forEach(folder => {
+          const open = isFolderOpen(folder.path);
+          const label = folder.name.replace(/_/g, ' ');
+          // Guide line sits at the folder row's left padding + half icon width
+          const guideLeft = indent + 5;
+          html += `
+        <div class="tree-folder ${open ? 'open' : ''}" data-path="${folder.path}">
+          <div class="tree-row tree-folder-row" data-path="${folder.path}" style="padding-left:${indent}px">
+            ${SVG_CHEVRON}${SVG_FOLDER}
+            <span class="tree-label">${label}</span>
+          </div>
+          <div class="tree-children">
+            <div class="tree-children-inner" style="--guide-left:${guideLeft}px">
+              ${renderTreeNode(folder, depth + 1)}
+            </div>
+          </div>
+        </div>`;
+        });
+
+      // Files
+      node.posts.forEach(post => {
+        const isActive = post.slug === activeSlug;
+        const tag = (post.tags || [])[0];
+        html += `
+      <a class="tree-row tree-file-row ${isActive ? 'active' : ''}"
+         data-slug="${post.slug}" style="padding-left:${indent}px">
+        ${SVG_FILE}
+        <span class="tree-label">${post.title}</span>
+        ${tag ? `<span class="post-tag" style="margin-left:auto;flex-shrink:0">${tag}</span>` : ''}
+      </a>`;
+      });
+
+      return html;
+    }
+
+    // ─────────────────────────────────────────────────
+    //  Render sidebar post list (entry point)
+    // ─────────────────────────────────────────────────
+    function renderPostList(posts) {
+      if (!posts.length) {
+        postList.innerHTML = `<div class="no-results">No posts found.</div>`;
+        return;
+      }
+
+      const tree = buildTree(posts);
+
+      if (!tree.folders.size) {
+        // Flat list — no tree chrome
+        postList.innerHTML = posts.map(post => {
+          const isActive = post.slug === activeSlug;
+          return `<a class="post-item ${isActive ? 'active' : ''}" data-slug="${post.slug}">
+        <div class="post-item-title">${post.title}</div>
+        <div class="post-item-meta">
+          ${post.date ? `<span class="post-item-date">${formatDate(post.date)}</span>` : ''}
+          ${(post.tags || []).slice(0, 2).map(t => `<span class="post-tag">${t}</span>`).join('')}
+        </div>
+      </a>`;
+        }).join('');
+      } else {
+        postList.innerHTML = renderTreeNode(tree, 0);
+
+      }
+
+      // Bind folder toggle
+      postList.querySelectorAll('.tree-folder-row').forEach(row => {
+        row.addEventListener('click', () => {
+          const path = row.dataset.path;
+          const group = row.closest('.tree-folder');
+          const open = group.classList.contains('open');
+          folderState[path] = !open;
+          group.classList.toggle('open', !open);
+        });
+      });
+
+      // Bind file click
+      postList.querySelectorAll('.tree-file-row, .post-item[data-slug]').forEach(el => {
+        el.addEventListener('click', e => {
+          e.preventDefault();
+          navigateTo(el.dataset.slug);
+          closeMobileSidebar();
+        });
+      });
+    }
+
+    // ─────────────────────────────────────────────────
+    //  Filtering
+    // ─────────────────────────────────────────────────
+    function applyFilters() {
+      let posts = allPosts;
+      if (activeTag) posts = posts.filter(p => (p.tags || []).includes(activeTag));
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        posts = posts.filter(p =>
+          (p.title || '').toLowerCase().includes(q) ||
+          (p.description || '').toLowerCase().includes(q) ||
+          (p.tags || []).some(t => t.toLowerCase().includes(q))
+        );
+        // Auto-expand ALL ancestor folders of matching posts
+        posts.forEach(p => openAncestors(p.slug));
+      }
+      renderPostList(posts);
+    }
+
+    searchInput.addEventListener('input', () => {
+      searchQuery = searchInput.value.trim();
+      applyFilters();
+    });
+
+    // ─────────────────────────────────────────────────
+    //  Navigation
+    // ─────────────────────────────────────────────────
+    function navigateTo(slug) {
+      if (!slug) return navigateHome();
+      openAncestors(slug);  // open every ancestor folder in the tree
+      history.pushState(null, '', `#${slug}`);
+      loadPost(slug);
+    }
+
+    function navigateHome() {
+      history.pushState(null, '', '#');
+      showHome();
+    }
+
+    function showHome() {
+      activeSlug = null;
+      homeScreen.style.display = 'flex';
+      loadingScreen.style.display = 'none';
+      errorScreen.style.display = 'none';
+      article.style.display = 'none';
+      document.title = CONFIG.siteName;
+      topbarTitle.textContent = CONFIG.siteName;
+      renderPostList(filterCurrentPosts());
+    }
+
+    function filterCurrentPosts() {
+      let posts = allPosts;
+      if (activeTag) posts = posts.filter(p => (p.tags || []).includes(activeTag));
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        posts = posts.filter(p =>
+          (p.title || '').toLowerCase().includes(q) ||
+          (p.description || '').toLowerCase().includes(q)
+        );
+      }
+      return posts;
+    }
+
+    // ─────────────────────────────────────────────────
+    //  Load and render a post
+    // ─────────────────────────────────────────────────
+    async function loadPost(slug) {
+      activeSlug = slug;
+
+      // Show loading
+      homeScreen.style.display = 'none';
+      errorScreen.style.display = 'none';
+      article.style.display = 'none';
+      loadingScreen.style.display = 'flex';
+
+      // Update sidebar active state
+      renderPostList(filterCurrentPosts());
+
+      try {
+        const url = `${CONFIG.postsDir}${slug}.md`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const raw = await res.text();
+
+        const {meta, body} = parseFrontmatter(raw);
+
+        // Render
+        renderArticle(meta, body, slug);
+
+      } catch (e) {
+        loadingScreen.style.display = 'none';
+        errorScreen.style.display = 'flex';
+        errorMsg.textContent = `Could not load "${slug}.md". Check that the file exists in /posts/.`;
+        console.error(e);
+      }
+    }
+
+    function renderArticle(meta, body, slug) {
+      // Tags
+      const tags = meta.tags || [];
+      articleTags.innerHTML = tags.map(t => `<span class="article-tag">${t}</span>`).join('');
+      articleTags.style.display = tags.length ? 'flex' : 'none';
+
+      // Title
+      const title = meta.title || slug;
+      articleTitle.textContent = title;
+
+      // Date
+      articleDate.textContent = formatDate(meta.date) || '';
+
+      // Author
+      articleAuthor.textContent = meta.author ? `by ${meta.author}` : '';
+
+      // Reading time
+      articleReadingTime.textContent = estimateReadingTime(body);
+
+      // Body
+      articleBody.innerHTML = marked.parse(body);
+
+      // Show
+      loadingScreen.style.display = 'none';
+      article.style.display = 'block';
+      article.classList.remove('article-fade');
+      void article.offsetWidth; // reflow
+      article.classList.add('article-fade');
+
+      // Page title
+      document.title = `${title} — ${CONFIG.siteName}`;
+      topbarTitle.textContent = title;
+
+      // Scroll to top
+      $('content').scrollTop = 0;
+    }
+
+    // ─────────────────────────────────────────────────
+    //  Copy code button
+    // ─────────────────────────────────────────────────
+    window.copyCode = function (btn) {
+      const target = document.getElementById(btn.dataset.target);
+      if (!target) return;
+      navigator.clipboard.writeText(target.innerText).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    };
+
+    // ─────────────────────────────────────────────────
+    //  Mobile sidebar
+    // ─────────────────────────────────────────────────
+    $('menu-btn').addEventListener('click', () => {
+      sidebar.classList.add('open');
+      overlay.classList.add('show');
+      document.body.style.overflow = 'hidden';
+    });
+
+    function closeMobileSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+      document.body.style.overflow = '';
+    }
+
+    overlay.addEventListener('click', closeMobileSidebar);
+
+    // ─────────────────────────────────────────────────
+    //  Hash-based routing
+    // ─────────────────────────────────────────────────
+    function handleRoute() {
+      const hash = window.location.hash.slice(1);
+      if (hash && hash !== '/') {
+        openAncestors(hash);  // expand full path on deep-link arrival
+        loadPost(hash);
+      } else {
+        showHome();
+      }
+    }
+
+    window.addEventListener('hashchange', handleRoute);
+
+    // ─────────────────────────────────────────────────
+    //  Boot
+    // ─────────────────────────────────────────────────
+    (async function init() {
+      await loadPostsIndex();
+      handleRoute();
+    })();
+  </script>
+</body>
+
+</html>

@@ -99,7 +99,7 @@ body {
 .logo-mark {
   width: 28px;
   height: 28px;
-  background: var(--accent);
+  /* background: var(--accent); */
   border-radius: 7px;
   display: flex;
   align-items: center;
@@ -107,11 +107,11 @@ body {
   flex-shrink: 0;
 }
 
-.logo-mark svg {
+/* .logo-mark svg {
   width: 15px;
   height: 15px;
   fill: #000;
-}
+} */
 
 .logo-text {
   font-size: 14px;

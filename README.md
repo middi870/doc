@@ -1,3 +1,17 @@
+<p align="center">
+<img src="https://readme-typing-svg.herokuapp.com?font=JetBrains+Mono&size=28&duration=3000&color=36BCF7&center=true&vCenter=true&width=700&lines=Personal+Documentation+Blog;Markdown+Based+Knowledge+System;Learning+Logs+%7C+Project+Notes+%7C+Documentation;Powered+by+HTML+CSS+and+Python">
+</p>
+
+## GitHub Stats
+
+<p align="center">
+
+<img height="165" src="https://github-readme-stats.vercel.app/api?username=middi870&show_icons=true&theme=tokyonight">
+
+<img height="165" src="https://github-readme-stats.vercel.app/api/top-langs/?username=middi870&layout=compact&theme=tokyonight">
+
+</p>
+
 <div align="center">
 
 <img src="favicon.jpeg" alt="Logo" width="80" height="80" style="border-radius: 12px;" />

@@ -260,3 +260,5 @@ This project is available for personal and educational use.
 # Author
 
 Maintained as part of an ongoing documentation and learning practice.
+
+![Snake animation](https://github.com/middi870/middi870/blob/output/github-contribution-grid-snake.svg)

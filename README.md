@@ -8,9 +8,9 @@
 
 <br/>
 
-[![Repo Size](https://img.shields.io/github/repo-size/USERNAME/doc?style=for-the-badge&logo=github&color=6e40c9)](https://github.com/USERNAME/doc)
-[![Last Commit](https://img.shields.io/github/last-commit/USERNAME/doc?style=for-the-badge&logo=git&color=f05032)](https://github.com/USERNAME/doc/commits/main)
-[![License](https://img.shields.io/github/license/USERNAME/doc?style=for-the-badge&color=22c55e)](https://github.com/USERNAME/doc/blob/main/LICENSE)
+[![Repo Size](https://img.shields.io/github/repo-size/middi870/doc?style=for-the-badge&logo=github&color=6e40c9)](https://github.com/middi870/doc)
+[![Last Commit](https://img.shields.io/github/last-commit/middi870/doc?style=for-the-badge&logo=git&color=f05032)](https://github.com/middi870/doc/commits/main)
+[![License](https://img.shields.io/github/license/middi870/doc?style=for-the-badge&color=22c55e)](https://github.com/middi870/doc/blob/main/LICENSE)
 [![Markdown](https://img.shields.io/badge/Content-Markdown-1f6feb?style=for-the-badge&logo=markdown)](https://daringfireball.net/projects/markdown/)
 [![Python](https://img.shields.io/badge/Tool-Python-3776ab?style=for-the-badge&logo=python)](https://python.org)
 
@@ -27,10 +27,10 @@
 > Once deployed with GitHub Pages, your documentation site is accessible at:
 
 ```
-https://USERNAME.github.io/doc
+https://middi870.github.io/doc
 ```
 
-> *(Replace `USERNAME` with your actual GitHub username.)*
+> *(Replace `middi870` with your actual GitHub middi870.)*
 
 ---
 
@@ -71,7 +71,7 @@ https://USERNAME.github.io/doc
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/USERNAME/doc.git
+git clone https://github.com/middi870/doc.git
 cd doc
 ```
 
@@ -168,7 +168,7 @@ git push
 Your live site will be available at:
 
 ```
-https://USERNAME.github.io/doc
+https://middi870.github.io/doc
 ```
 
 > ⏱️ *Deployment may take 1–2 minutes on first publish.*
@@ -183,7 +183,7 @@ Contributions are welcome! Whether it's fixing a typo, improving the UI, or addi
 # 1. Fork the repository on GitHub
 
 # 2. Clone your fork
-git clone https://github.com/YOUR_USERNAME/doc.git
+git clone https://github.com/middi870/doc.git
 
 # 3. Create a feature branch
 git checkout -b feature/your-improvement

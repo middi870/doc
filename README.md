@@ -232,10 +232,13 @@ See the [LICENSE](LICENSE) file for details.
 
 Maintained as part of an ongoing documentation and learning practice.
 
+### 🐍 Contribution Graph
+
 <div align="center">
 
-![GitHub Contribution Snake](https://github.com/middi870/middi870/blob/output/github-contribution-grid-snake.svg)
-
-*Made with ❤️ and Markdown*
+![GitHub Contribution Snake](https://raw.githubusercontent.com/middi870/middi870/output/github-contribution-grid-snake-dark.svg#gh-dark-mode-only)
+![GitHub Contribution Snake](https://raw.githubusercontent.com/middi870/middi870/output/github-contribution-grid-snake.svg#gh-light-mode-only)
 
 </div>
+
+*Made with ❤️ and Markdown*
